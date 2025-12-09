@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# Virtual Environments (multiple patterns to catch all cases)
+venv/
+.venv
+env/
+ENV/
+spam_detector_env/    
+.env
+.env.local
+
+# Conda
+*.conda
+.conda/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AWS Elastic Beanstalk
+.elasticbeanstalk/
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+*.pem
+.aws/
+
+# Logs
+*.log
+
+#My notes
+project_notes.txt
+ 
+#data too large
+cleaned_data.csv
+raw_data.csv

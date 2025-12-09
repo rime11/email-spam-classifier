@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Email Spam Classifier{% endblock %}
+
+{% block content %}
+    <h1> Email Spam Classifier</h1>
+    <form id="emailForm">
+        <div class="form-group">
+            <label for="subject">Email Subject:</label>
+            <input type="text" id="subject" name="subject" placeholder="Enter email subject (optional)">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Email Message:</label>
+            <textarea id="message" name="message" placeholder="Enter email content here..." required></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">Classify Email</button>
+    </form>
+    
+    <div id="result"></div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Classifying...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '🔄 Analyzing email...';
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('subject', subject);
+            formData.append('message', message);
+            
+            // Make prediction request
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `❌ Error: ${data.error}`;
+                } else {
+                    const isSpam = data.prediction === 'Spam';
+                    resultDiv.className = isSpam ? 'spam' : 'ham';
+                    
+                    const icon = isSpam ? '🚨' : '✅';
+                    const resultHtml = `
+                        <h3>${icon} Classification Result</h3>
+                        <p><strong>Prediction:</strong> ${data.prediction}</p>
+                        <p><strong>Spam Probability:</strong> ${data["Spam_probability"]}%</p>
+                        <p><strong>Ham Probability:</strong> ${data["Ham_probability"]}%</p>
+                        
+                        
+                    `;
+                    resultDiv.innerHTML = resultHtml;
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Classify Email';
+            });
+        });
+    </script>
+{% endblock %}
