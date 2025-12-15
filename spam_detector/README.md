@@ -1,32 +1,45 @@
 # Spam Detector Web Application
 
-Flask web interface for real-time email spam classification.
+A Flask web application for real-time email spam classification using machine learning.
 
 ![Spam Detector Web Interface ](../assets/screenshot_flask_app.png)
 
-**Note:** The live AWS deployment has been taken down to minimize costs. You can run the application locally by following the installation instructions below, or view the deployment documentation to see how it was configured for production.
+**Note:** This application is currently deployed on AWS Lambda as a serverless API. See the `spam_app_lambda/` folder for deployment documentation. This Elastic Beanstalk setup achieved the same functionality but at significantly higher cost.
 
-## How to Start Locally
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Project Structure](#project-structure)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Run application](#run-application)
+- [Testing](#testing)
+- [AWS Elastic Beanstalk Deployment](#aws-elastic-beanstalk-deployment)
+- [Troubleshooting](#troubleshooting)
 
-### Prerequisites
-- Python 3.10+
-- Virtual environment (recommended)
+## Overview
+This application provides a web interface for classifying emails as spam or legitimate (ham) using a pre-trained LinearSVC model. Deployed on AWS Elastic Beanstalk, this documentation covers the EB deployment process.
 
-### What's Included
-- **Pre-trained model included** (4.4MB) - no additional setup required!  
-- All dependencies managed via `requirements.txt`  
+**Note:** A cost-optimized serverless version using AWS Lambda is available in the spam_app_lambda/ folder. The Elastic Beanstalk setup documented here achieves the same functionality but at higher cost (~$54/month vs $0-2/month for Lambda).
+
+## Features
+
+- Real-time spam classification with 99.44% accuracy
+- Confidence scores via decision function
+- Clean, responsive web interface
+- Input validation and error handling
+- Pre-trained model included 
 - Comprehensive test suite
+- Example emails for testing
 
-## Dependencies
-requirements.txt
-```
-pandas==2.2.3
-scikit-learn==1.6.1
-joblib==1.4.2
-numpy==2.2.4
-flask
-gunicorn # For the AWS Elastic beanstalk deployment
-```
+## Prerequisites
+
+- Python 3.10 or higher
+- AWS account (for deployment)
+- AWS CLI configured with credentials (for deployment)
+- Virtual environment tool (conda or venv recommended)
+
 ## Project Structure
 ```
 spam_detector/
@@ -51,13 +64,42 @@ spam_detector/
 ```
 **Note:** `application.py` is required by AWS Elastic Beanstalk.
 
+## Dependencies
+```
+pandas==2.2.3
+scikit-learn==1.6.1
+joblib==1.4.2
+numpy==2.2.4
+flask
+gunicorn # For the AWS Elastic beanstalk deployment
+```
+
 ## Installation
+
+### 1. Clone Repository
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/spam_detector.git
+git clone https://github.com/rime11/spam_detector.git
 cd spam_detector
 ```
-## Environment Setup
+### 2. Set Up Environment
+
+**Option A: Using Conda (Recommended)**
+```bash
+conda env create -f environment.yml
+conda activate spam_detector_env
+```
+**Option B: Using pip**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+### 3. Verify Installation
+```bash
+# Confirm model file exists
+ls models/spam_trained_model.joblib
+```
+### Environment Setup
 
 This project was developed using Conda. You can recreate the environment using either conda or pip method:
 
@@ -76,19 +118,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# Run application
+## Run application
+```bash
+python app.py
+```
+
+### 3. Verify Installation
+```bash
+# Confirm model file exists
+ls models/spam_trained_model.joblib
+```
+## Running Locally
 ```bash
 python app.py
 ```
 Visit: `http://localhost:5000` or whatever you setup your port at in the app.py file
-
-## Features
-
-- Real-time spam classification
-- Confidence scores (decision function)
-- Clean, responsive UI
-- Input validation
-- Example emails for testing
 
 ## API Endpoints
 
@@ -113,9 +157,8 @@ Classify an email as spam or ham.
 }
 ```
 ## Testing
-### Automated Testing Suite
 
-The project includes a comprehensive testing suite (`tests/test_spam_detector.py`) that validates the Flask API's performance across multiple scenarios.
+The project includes a comprehensive testing suite (`tests/test_spam_detector.py`) that validates the Flask API's performance across multiple scenarios including obvious spam, legitimate emails, phishing attempts, marketing content, edge cases, and error handling.
 
 **Test Categories:**
 - Obvious spam emails (prize scams, work-from-home schemes)
@@ -127,20 +170,20 @@ The project includes a comprehensive testing suite (`tests/test_spam_detector.py
 
 ### Running Tests
 ```bash
-# 1. Start Flask app
+# Terminal 1
 python app.py
 
-# 2. In another terminal, run tests
+# Terminal 2
 cd tests
 python test_spam_detector.py
 ```
 **Test Output:**
-Generating Summary Report...  
+```
 Total Tests: 20  
 Successful: 19  
 Failed Tests: 1  
 Accuracy: 71.43% (10/14 correct classifications)  
-
+```
 
 **Results saved to:** `results_dataframe.csv` with the following columns:
 - email subject	
@@ -154,156 +197,114 @@ Accuracy: 71.43% (10/14 correct classifications)
 - response time	
 - error	expected
 
-## Deployment
-### Deploy to AWS Elastic Beanstalk
-
-> **Note:** This application was successfully deployed to AWS EB and tested in production. The live environment has been terminated to avoid ongoing costs. Deployment documentation is preserved below for reference and future redeployment.
-
-
+## AWS Elastic Beanstalk Deployment
+Understanding AWS EB Architecture
+```
+Application: spam-detector-app
+├── Environment: spam-test-env (development/testing)
+│   ├── EC2 instances
+│   ├── Load balancer
+│   └── Logs and monitoring
+│
+└── Environment: spam-detector-env (production)
+    ├── EC2 instances
+    ├── Load balancer
+    └── Logs and monitoring
+```
 **Prerequisites:**
 - AWS account
 - AWS CLI configured with credentials
 
-## How aws eb works:
-```
-Application: spam-detector-app
-┌───────────────────────────────┐
-│          Application          │
-│ (logical project container)   │
-│                               │
-│  ┌───────────────────────┐    │
-│  │ Environment: spam-test-env │ ← Running dev/test version
-│  │ - EC2 instances            │
-│  │ - Load balancer            │
-│  │ - Logs, monitoring         │
-│  └───────────────────────┘    │
-│                               │
-│  ┌───────────────────────┐    │
-│  │ Environment: spam-detector-env │ ← Running production version
-│  │ - EC2 instances            │
-│  │ - Load balancer            │
-│  │ - Logs, monitoring         │
-│  └───────────────────────┘    │
-└───────────────────────────────┘
-```
-### 1. Install EB CLI --> Elasticbeanstalk Command Line Tools 
-Installation using pip (the Python package manager):
+## Deployment Steps
+### 1. Install EB CLI
 ```bash
 pip install --upgrade awsebcli
 ```
-### 2. AWS Command Line Interface (AWS CLI):
-Not required to run eb commands, however the AWS CLI is often used in conjunction with the EB CLI for broader AWS interactions, such as configuring credentials, managing S3 buckets, or interacting with other AWS services that the application might use.
-```bash
+### 2. Install AWS CLI (Optional but Recommended)
+The AWS CLI enables broader AWS interactions for credential configuration and service management:
+```bash 
 pip install --upgrade awscli
 ```
-
-# Initialize and deploy:
+### 3. Initialize Application
 ```bash
-#initialize EB application
-eb init -p python-3.10 spam-detector-app --region us-east-1 
-
-# Create environment
+# Initialize EB application
+eb init -p python-3.10 spam-detector-app --region <ENTER_YOUR_REGION>
+```
+### 4. Create Environment
+```bash
+# Create and deploy to new environment
 eb create spam-detector-env
-
-#Deploy application
+```
+### 5. Deploy Application
+```bash
+# Deploy current version
 eb deploy
 
-#Open in browser
+# Open application in browser
 eb open
 ```
-### 3. Update After Changes:
+### Updating After Changes
 ```bash
 eb deploy
 ```
+**Note:** This application has been deployed using two AWS architectures:
+
+
+**AWS Console Reference**
+
+![aws console](../assets/aws_interface.png)
 
 ## Troubleshooting
-### Issue: Model file not found
-**Solution:** Ensure you've cloned the complete repository including the `models/` directory:
+### Model file not found
+
+**Issue:** Application cannot locate the trained model file.  
+
+**Solution:** 
+
 ```bash
 # Verify model exists
 ls models/spam_trained_model.joblib
 
 # If missing, re-clone the repository
-git clone https://github.com/yourusername/spam-detector.git
-```
+git clone https://github.com/rime11/spam-detector.git
+```  
 
-### Issue: Port already in use
+### Port Already in Use
+**Issue:** Cannot start Flask application due to port conflict. 
+
+**Solution:** 
 ```bash
 # Kill process on port 5000
 lsof -ti:5000 | xargs kill -9
 ```
+### ModuleNotFoundError
+**Issue:** ModuleNotFoundError when starting application.
 
-### Issue: ModuleNotFoundError
+**Solution:** 
 ```bash
 # Reinstall dependencies
 pip install -r requirements.txt --force-reinstall
 ```
 
-**This is what the aws console looks like**
+## EB Deployment Failures
+**Issue:** Deployment fails or environment health is degraded.  
 
-![aws console](../assets/aws_interface.png)
+**Solutions:**  
+* Check EB logs: **eb logs**  
+* Verify application.py exists and is configured correctly  
+* Ensure all dependencies are in requirements.txt  
+* Confirm Python version matches EB platform (3.10)
 
+## Cost Considerations
+AWS Elastic Beanstalk deployment incurs the following approximate costs:
+
+* EC2 instance: ~$40-50/month
+* Load balancer: ~$15-20/month
+* Total: ~$54/month
+
+For a cost-effective alternative, see Lambda deployment in [the lambda deployment folder](/spam_app_lambda/) which runs for $0-2/month.
 
 ##  License
 
 MIT License - see [../LICENSE](../LICENSE)
 
-
-
-for architecture
-👉 Choose arm64 (Graviton)
-unless you’re using a library that specifically requires x86 (which is rare).
-
-Here’s why:
-
-💰 Cheaper: up to 20% lower cost per execution.
-
-⚡ Faster: better cold start performance and CPU efficiency.
-
-🧩 Works perfectly with your dependencies (Flask, NumPy, pandas, joblib, awsgi).
-
-Your app doesn’t use any compiled C extensions that break on ARM, so it’s safe.
-
-
-An Execution Role is an IAM Role that tells AWS:
-
-“What is this Lambda function allowed to do?”
-Your app only needs to:
-
-run Python code
-
-log to CloudWatch (for debugging)
-
-✅ That means you only need basic Lambda permissions.
-and attach this policy:
-
-AWSLambdaBasicExecutionRole
-
-Networking → Function URL
-What it is:
-
-A Function URL gives your Lambda a direct HTTPS endpoint
-— so you can access it publicly without needing API Gateway.
-Under Auth type, choose:
-
-None (public) — if you want people to be able to test your spam detector easily via browser or curl.
- do pip install <packages> -t . --> it will create a folder with installed packages so only include what I need like awsgi, flask
-
- zip -r app.zip . --> zip it
-
- do not install numpy and pandas amazon have their own
-
- price difference:
- - AWS Elastic Beanstalk costs approximately **$25-50/month** for a basic environment:
-      - EC2 t2.micro instance: ~$8/month
-      - Load Balancer: ~$15/month  
-      - Data transfer: ~$2-5/month: $54/month (running 24/7 even when no one's using it)
-- Lambda with Docker: Probably $0-2/month for a portfolio project
-First 1 million requests/month are FREE
-You only pay when someone actually uses your app
-No idle server costs
-- Scaling: Lambda automatically handles traffic (0 to 1000s of requests)
-
-**Lambda expects a function, not a web server**. You'll need to either:
-- Use a handler that converts Lambda events to Flask requests (using awslambdaric or similar)
-- Restructure your app to have a handler function

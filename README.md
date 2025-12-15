@@ -1,93 +1,211 @@
-# Project Description
-# Installation Instruction
 # Email Spam Detection System
 
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
-[![Accuracy](https://img.shields.io/badge/accuracy-99.42%25-success.svg)](.)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Accuracy](https://img.shields.io/badge/accuracy-99.44%25-success.svg)](.)
+[![Flask](https://img.shields.io/badge/flask-3.0-green.svg)](https://flask.palletsprojects.com/)
+[![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🎯 Project Overview
+##  [Project Overview](#project-overview)
 
-This project implements an end-to-end spam detection pipeline:
-- **Data Analysis and Cleaning:** 23,110 training emails
-- **Feature Engineering:** 67,000 TF-IDF features + two temporal features
-- **Model Training & Evaluation:** four algorithms were compared
-- **Web Deployment:** Flask app for real-time classification
+##  Project Overview
 
-**Key Achievement:** Matches industry-standard performance, Gmail: ~99.5%, my model: 99.42%
+An end-to-end machine learning project that detects spam emails with **99.44% accuracy**, matching Gmail's industry-standard performance (~99.5%). The project demonstrates the complete ML lifecycle from data analysis to cloud deployment, with a focus on cost optimization and production best practices.
+
+**Key Highlights:**
+-  Analyzed and cleaned 33,716 emails from the Enron dataset
+- Trained and compared 4 ML algorithms (LinearSVC achieved best results)
+- Built Flask web application with REST API
+- Deployed to AWS with cost optimization: **$54/month → $0-2/month**
+- Containerized with Docker for serverless Lambda deployment
 
 ---
-##  Dataset
+
+## Table of Contents
+- [Dataset](#dataset)
+- [Project Workflow](#project-workflow)
+- [Project Structure](#project-structure)
+- [Model Performance](#model-performance)
+- [Deployment Journey](#deployment-journey)
+- [Quick Start](#quick-start)
+- [Technologies Used](#️technologies-used)
+- [Future Improvements](#future-improvements)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Dataset
 
 - **Source:** [Enron Spam Dataset](https://github.com/MWiechmann/enron_spam_data)
 - **Total Emails:** 33,716 (51% spam, 49% ham)
-- **Train/Test Split:** 80/20 stratified split
-- **Features:** Email subject, message body, date
-### Note
-- raw and cleaned data are not included because of their size but Xtrain, Xtest, ytrain and ytest are included.
-- raw data can be downloaded at https://github.com/MWiechmann/enron_spam_data/tree/master
+- **Train/Test Split:** 80/20 stratified split (26,973 train / 6,743 test)
+- **Features:** Email subject, message body, timestamp
+
+**Note:** Raw and cleaned datasets are not included in the repository due to size constraints. Pre-processed train/test splits (X_train, X_test, y_train, y_test) are provided. Download raw data from the [source repository](https://github.com/MWiechmann/enron_spam_data/tree/master) if needed.
+
+---
+
+## Project Workflow
+
+### 1. **Data Analysis & Cleaning** 
+[Note book](notebooks/01_data_analysis.ipynb)
+
+This notebook performs comprehensive exploratory data analysis:
+- **Data Loading:** Import 33,716 emails with metadata
+- **Data Quality Assessment:** Identify missing values, duplicates, and data inconsistencies
+- **Feature Engineering:** 
+  - Extract temporal features (day of week from timestamps)
+  - Calculate email repetition frequency patterns
+- **Text Preprocessing:** Clean email text (lowercase conversion, whitespace normalization)
+- **Visualization:** Class distribution, temporal patterns, and text characteristics
+- **Output:** Cleaned dataset saved to `data/cleaned_data.csv`
+
+### 2. **Model Training & Evaluation**  
+[Note Book](notebooks/02_model_selection.ipynb)  
+This notebook handles model development and comparison:
+- **Feature Engineering:**
+  - TF-IDF vectorization (67,000 features optimized via GridSearchCV)
+  - Temporal features (day_of_week, repeat_frequency)
+- **Model Comparison:** Trained and evaluated 4 algorithms:
+  - MultinomialNB (baseline)
+  - Logistic Regression
+  - Linear SVM (LinearSVC) ✅ **Selected**
+  - Kernel SVM (SVC with linear kernel)
+- **Hyperparameter Tuning:** GridSearchCV with 5-fold cross-validation
+- **Model Evaluation:** Accuracy, F1-score, Precision, Recall on hold-out test set
+- **Output:** Trained LinearSVC model saved to `src/models/spam_trained_model.joblib`
+
+### 3. **Web Application Development** 
+[Spam Detector Folder](spam_detector/)
+
+Flask-based web interface and REST API:
+- **Frontend:** HTML/CSS interface for manual email classification
+- **Backend:** Flask server with prediction endpoints
+- **API:** RESTful endpoints for programmatic access
+- **Model Integration:** Load and serve trained LinearSVC model
+
+### 4. **Cloud Deployment**
+**Evolution:** Flask Local → AWS Elastic Beanstalk → AWS Lambda (Docker)
+- **Initial:** AWS Elastic Beanstalk deployment
+- **Cost Issue:** Discovered $54/month charges from ALB and EC2
+- **Solution:** Migrated to AWS Lambda with Docker containers
+- **Result:** Reduced costs to $0-2/month while maintaining functionality
+
+---
 
 ## Project Structure
 ```
-github files/
-|── README.md    
-|──requirements.txt
-├── LICENSE 
-├── .gitignore  
-├── notebooks/                                  # Jupyter notebooks for analysis
-│   ├── 01_data_analysis.ipynb
-│   └── 02_model_selection.ipynb
-├── src/    
-|   ├── __init__.py                             # Source code
-│   ├── clean_emails.py                         # Data cleaning functions
-│   ├── model_fit.py                            # Evaluation metrics
-│   └── models/ 
-        |__spam_trained_model.joblib           # Trained model artifacts
-├── data/ 
-│   ├── raw_data.csv                            # Original Enron dataset
-│   ├── cleaned_data.csv                        # Processed training data
-│   ├── X_train.csv                             # Training features
-│   ├── y_train.csv                             # Training labels
-│   ├── X_test.csv                              # Test features
-│   └── y_test.csv                              # Dataset files
-|
-├── spam_detector/                             # Web application using Flask                                # FLASK Web application
-    ├── README.md                               # Deployment instructions
-    ├── app.py          
-    ├── application.py                          # Flask server
-    ├── requirements.txt                        # Flask dependencies
+spam-detector/
+├── README.md                           # This file
+├── LICENSE                             # MIT License
+├── .gitignore                          # Git ignore rules
+├── requirements.txt                    # Project dependencies
+│
+├── notebooks/                          # Jupyter notebooks for analysis
+│   ├── 01_data_analysis.ipynb         # EDA, cleaning, feature engineering
+│   └── 02_model_selection.ipynb       # Model training and evaluation
+│
+├── src/                                # Source code modules
+│   ├── __init__.py
+│   ├── clean_emails.py                # Data cleaning functions
+│   ├── model_fit.py                   # Model training utilities
+│   └── models/
+│       └── spam_trained_model.joblib  # Trained LinearSVC model
+│
+├── data/                               # Dataset files
+│   ├── X_train.csv                    # Training features
+│   ├── y_train.csv                    # Training labels
+│   ├── X_test.csv                     # Test features
+│   └── y_test.csv                     # Test labels
+│
+└── spam_detector/                      # Flask web application
+    ├── README.md                       # Deployment documentation
+    ├── app.py                          # Flask application entry point
+    ├── application.py                  # EB-compatible entry point
+    ├── requirements.txt                # Flask dependencies
+    ├── Dockerfile                      # Docker configuration for Lambda
     ├── templates/
-    |   ├──base.html                            # Main web interface
-    │   └── index.html                          # Main web interface
+    │   ├── base.html                  # HTML base template
+    │   └── index.html                 # Main web interface
     └── static/
-        ├── css/
-            └── style.css
-       
+        └── css/
+            └── style.css              # Styling
 ```
 
-## Results
+---
+
+## Model Performance
+
+### Cross-Validation Results (5-Fold)
 
 | Model | Accuracy | F1 Score | Precision | Recall |
 |-------|----------|----------|-----------|--------|
 | MultinomialNB | 98.87% | 0.9883 | 0.9895 | 0.9871 |
-| SVC (Linear) | 99.10% | 0.9907 | 0.9862 | 0.9952 |
-| Logistic Regression | 98.49% | 0.9907	 | 0.9856	| 0.9950 |
+| Logistic Regression | 98.49% | 0.9845 | 0.9856 | 0.9950 |
+| SVC (Linear Kernel) | 99.10% | 0.9907 | 0.9862 | 0.9952 |
 | **LinearSVC**  | **99.09%** | **0.9907** | **0.9856** | **0.9957** |
 
-**Test Set Performance, Final Evaluation on Held-Out Data**   
+### Final Test Set Evaluation
+
 **LinearSVC Performance:**
-- **Accuracy:** 99.42%
+- **Accuracy:** 99.44%
 - **F1 Score:** 0.9942
-- **Precision:** 0.9912	
-- **Recall:** 0.9972	
-* Correctly classified: 6,705 over 6,743 emails
-* False Positives: 29 (0.43%)
-* False Negatives: 9 (0.13%)
+- **Precision:** 0.9912
+- **Recall:** 0.9972
 
-**Note:** Test performance exceeded cross-validation results, demonstrating strong generalization and model robustness. This suggests the model will perform reliably on new, unseen emails in production.
+**Confusion Matrix:**
+- Correctly classified: **6,705 / 6,743 emails**
+- False Positives: 29 (0.43% - ham marked as spam)
+- False Negatives: 9 (0.13% - spam marked as ham)
 
+**Model Selection Rationale:**
+- **LinearSVC** was chosen for production deployment because:
+  - Optimized for high-dimensional sparse data (67,000 TF-IDF features)
+  - 4-5× faster inference than kernel SVC
+  - Linear decision boundary exploits natural text separability
+  - Industry-proven for text classification tasks
+  - Test performance (99.44%) exceeded cross-validation (99.09%), demonstrating strong generalization
 
-## Quick Start
+---
+
+## Deployment Journey
+
+### Phase 1: AWS Elastic Beanstalk
+**Initial deployment to AWS EB for easy setup and management:**  
+[See README file for detailed deployment instructions for EB](/spam_detector/README.md)
+- Created Flask application with `application.py` entry point
+- Configured EB environment with Python 3.10
+- Deployed via EB CLI
+- **Issue:** Monthly costs of **$54** due to Application Load Balancer and EC2 instance
+
+### Phase 2: Cost Optimization → AWS Lambda
+**Migrated to serverless architecture to eliminate ongoing costs:**  
+[See the README file for detailed deployment instructions for lambda](/spam_app_lambda/README.md)
+
+**Steps Taken:**
+1. **Dockerized the Flask application**
+   - Created `Dockerfile` with Python 3.10 slim base
+   - Used **gunicorn** as WSGI server with AWS Lambda Web Adapter
+   - Built multi-architecture image for Lambda ARM64
+
+2. **AWS Lambda Setup**
+   - Pushed Docker image to Amazon ECR
+   - Created Lambda function from container image
+   - Configured Lambda Function URL for HTTP access
+   - Set appropriate IAM roles and permissions
+
+3. **Cost Comparison**
+   | Platform | Monthly Cost | Architecture |
+   |----------|--------------|--------------|
+   | AWS Elastic Beanstalk | **$54** | EC2 + ALB (always-on) |
+   | AWS Lambda | **$0-2** | Serverless (pay-per-request) |
+
+**Result:** **96% cost reduction** while maintaining full functionality
+
+---
+
+## 🚀 Quick Start
 
 ### 1. Clone Repository
 ```bash
@@ -98,146 +216,122 @@ cd spam-detector
 ### 2. Set Up Environment
 ```bash
 # Create virtual environment
-python -m venv spam_detector_env
+python -m venv venv
 
 # Activate environment
 # On Mac/Linux:
-source spam_detector_env/bin/activate
+source venv/bin/activate
 # On Windows:
-spam_detector_env\Scripts\activate
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Run Notebooks
+### 3. Explore the Notebooks
 ```bash
-jupyter notebook notebooks/01_data_analysis.ipynb
-jupyter notebook notebooks/02_model_training.ipynb
+# Launch Jupyter
+jupyter notebook
+
+# Open notebooks in order:
+# 1. notebooks/01_data_analysis.ipynb
+# 2. notebooks/02_model_selection.ipynb
 ```
 
-### 4. Try the Web App
+### 4. Run Flask App Locally
 ```bash
 cd spam_detector
+pip install -r requirements.txt
 python app.py
+
 # Navigate to http://localhost:5000
 ```
 
-See [spam_detector/README.md](flask_app/README.md) for deployment instructions
-
-
-
----
-## Methodology
-
-### Feature Engineering
-- **TF-IDF Vectorization:** 67,000 features (optimized via GridSearchCV)
-- **Temporal Features:** Day of week email was sent
-- **Pattern Features:** Email repetition frequency
-- **Text Preprocessing:** Lowercase, strip whitespace with stopwords and punctuation kept
-
-### Model Selection
-**Why LinearSVC?**
-- Optimized for high-dimensional sparse data (67k features)
-- Linear kernel exploits text data's natural separability
-- 4-5× faster than kernel SVC with comparable accuracy
-- Industry-proven for text classification
-
-### Pipeline
-```python
-Pipeline:
-  ├─ ColumnTransformer
-  │   ├─ TfidfVectorizer(max_features=67000)
-  │   └─ StandardScaler(temporal features)
-  └─ LinearSVC()
+### 5. Test the API
+```bash
+# Test prediction endpoint
+curl -X POST http://localhost:5000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"email": "URGENT! You won a prize. Click here NOW!"}'
 ```
+- Or to test the web app got to
+[this website and type in an email](https://ohw3i64ker6qr3sablgjbszvhi0rxntm.lambda-url.us-west-1.on.aws/)
+---
 
+## Technologies Used
+
+**Machine Learning & Data Science:**
+- Python 3.10
+- Scikit-learn (LinearSVC, TfidfVectorizer, Pipeline)
+- Pandas & NumPy
+- NLTK (text processing)
+- Matplotlib & Seaborn (visualization)
+- Joblib (model serialization)
+
+**Web Development:**
+- Flask 3.0 (web framework)
+- HTML/CSS (frontend)
+- Gunicorn (Flask-to-Lambda adapter)
+
+**Cloud & DevOps:**
+- Docker (containerization)
+- AWS Lambda (serverless compute)
+- AWS Elastic Beanstalk (initial deployment)
+- Amazon ECR (container registry)
+- AWS CloudWatch (logging)
 
 ---
 
-## 🛠️ Technologies Used
+## Future Improvements
 
-- **Python 3.10**
-- **Scikit-learn** - Machine learning
-- **Pandas & NumPy** - Data manipulation
-- **NLTK** - Text processing
-- **Matplotlib & Seaborn** - Visualization
-- **Flask** - Web deployment
-- **Joblib** - Model serialization
+**Model Enhancements:**
+* Combine multiple ML models for higher accuracy like stacking LinearSVC with MultinomialNB
+* Use advanced AI like BERT to understand context better
+* Continuously improve the model with new spam examples
+
+**Smarter Feature:**
+* Check email security settings (verify sender authenticity)
+* Analyze suspicious links and attachments
+* Track sender reputation history
+
+**Infrastructure:**
+* Set up automated testing and deployment
+* Add performance monitoring
+* Enable automatic scaling for high traffic
+---
+
+##  License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-##  Future Improvements
-
-- Ensemble methods (stacking multiple models)
-- Deep learning approaches (LSTM, BERT)
-- Email header analysis (SPF, DKIM records)
-- URL blacklist checking
-- Sender reputation scoring
-- Real-time model monitoring dashboard
-- A/B testing framework
-
----
-
-##  Notebooks
-
-### 01_data_analysis.ipynb
-- Data loading and exploration
-- Missing value analysis
-- Duplicate detection and handling
-- Feature engineering (day_of_week, repeat_freq)
-- Text preprocessing and visualization
-
-### 02_model_training.ipynb
-- Hyperparameter tuning (GridSearchCV)
-- Model comparison (4 algorithms)
-- Cross-validation (5-fold stratified)
-- Test set evaluation
-- Feature importance analysis
-
----
-
-## Web Application
-
-Live demo available at: [Your Deployment URL]
-
-See [flask_app/README.md](flask_app/README.md) for:
-- Local setup instructions
-- Deployment to Heroku/AWS
-- API documentation
-- Usage examples
-
----
-
-## License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
-
----
-
-## Author
+##  Author
 
 **Rime Saad**
-- GitHub: [@rime11](https://github.com/rime11/)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [yourwebsite.com](https://yourwebsite.com)
+- Email: rimesaad@gmail.com
+- LinkedIn: [linkedin.com/in/rime-saad](https://linkedin.com/in/rime-saad)
+- GitHub: [@rimesaad](https://github.com/rime11)
 
 ---
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - [Enron Spam Dataset](https://github.com/MWiechmann/enron_spam_data) by MWiechmann
 - Scikit-learn documentation and community
-- Kaggle spam detection community
+- AWS Lambda and Docker communities
 
 ---
 
-## 📞 Contact
+## 📞 Questions or Feedback?
 
-Questions or suggestions:
-- Email: rimesaad@gmail.com
-
+Feel free to:
+- 📬 Email me at rimesaad@gmail.com
+- 🐛 Open an issue on GitHub
+- ⭐ Star this repository if you found it helpful!
 
 ---
 
- **If you found this project helpful, please star the repository!**
+<div align="center">
+  <strong>⭐ If this project helped you, please consider starring the repository! ⭐</strong>
+</div>

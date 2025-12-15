@@ -38,8 +38,8 @@ Thumbs.db
 
 # AWS Elastic Beanstalk
 .elasticbeanstalk/
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+.elasticbeanstalk/*.cfg.yml
+.elasticbeanstalk/*.global.yml
 *.pem
 .aws/
 
@@ -48,6 +48,7 @@ Thumbs.db
 
 #My notes
 project_notes.txt
+spec-file.txt
  
 #data too large
 cleaned_data.csv
