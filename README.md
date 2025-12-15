@@ -142,8 +142,8 @@ spam-spam-classifier/
   └── static/
   │      └── style.css               # Styling
   └── tempaltes/
-  │   └── base.html
-  │   └── index.html
+        └── base.html
+        └── index.html
 
 ```
 
@@ -331,7 +331,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Enron Spam Dataset](https://github.com/MWiechmann/enron_spam_data) by MWiechmann
 - Scikit-learn documentation and community
@@ -339,12 +339,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Questions or Feedback?
+## Questions or Feedback?
 
 Feel free to:
-- 📬 Email me at rimesaad@gmail.com
-- 🐛 Open an issue on GitHub
-- ⭐ Star this repository if you found it helpful!
+- Email me at rimesaad@gmail.com
+- Open an issue on GitHub
+- Star this repository if you found it helpful!
 
 ---
 
