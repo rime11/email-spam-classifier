@@ -1,4 +1,5 @@
 # AWS Lambda Deployment Guide
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-AWS%20Lambda-orange)](https://ohw3i64ker6qr3sablgjbszvhi0rxntm.lambda-url.us-west-1.on.aws/)
 
 This application runs on AWS Lambda using **Docker containers** and **the Lambda Web Adapter** providing a serverless and cost-effective alternative to traditional hosting. It uses the same Flask and Gunicorn setup used on Elastic Beanstalk, with no Lambda-specific code changes needed.
 

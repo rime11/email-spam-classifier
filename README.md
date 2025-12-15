@@ -4,6 +4,7 @@
 [![Accuracy](https://img.shields.io/badge/accuracy-99.44%25-success.svg)](.)
 [![Flask](https://img.shields.io/badge/flask-3.0-green.svg)](https://flask.palletsprojects.com/)
 [![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-AWS%20Lambda-orange)](https://ohw3i64ker6qr3sablgjbszvhi0rxntm.lambda-url.us-west-1.on.aws/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ##  [Project Overview](#project-overview)
@@ -195,6 +196,8 @@ spam-spam-classifier/
 ### Phase 2: Cost Optimization → AWS Lambda
 **Migrated to serverless architecture to eliminate ongoing costs:**  
 [See the README file for detailed deployment instructions for lambda](/spam_app_lambda/README.md)
+
+[Click here for a Live Demo](https://ohw3i64ker6qr3sablgjbszvhi0rxntm.lambda-url.us-west-1.on.aws/)
 
 **Steps Taken:**
 1. **Dockerized the Flask application**
