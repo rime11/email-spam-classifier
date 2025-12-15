@@ -96,7 +96,7 @@ Flask-based web interface and REST API:
 
 ## Project Structure
 ```
-spam-detector/
+spam-spam-classifier/
 ├── README.md                           # This file
 ├── LICENSE                             # MIT License
 ├── .gitignore                          # Git ignore rules
@@ -119,18 +119,31 @@ spam-detector/
 │   ├── X_test.csv                     # Test features
 │   └── y_test.csv                     # Test labels
 │
-└── spam_detector/                      # Flask web application
-    ├── README.md                       # Deployment documentation
-    ├── app.py                          # Flask application entry point
-    ├── application.py                  # EB-compatible entry point
-    ├── requirements.txt                # Flask dependencies
-    ├── Dockerfile                      # Docker configuration for Lambda
-    ├── templates/
-    │   ├── base.html                  # HTML base template
-    │   └── index.html                 # Main web interface
-    └── static/
-        └── css/
-            └── style.css              # Styling
+└── spam_detector/                      # Flask web application running on AWS Elastic Beanstalk
+│   ├── README.md                       # Deployment documentation
+│   ├── app.py                          # Flask application entry point
+│   ├── application.py                  # EB-compatible entry point
+│   ├── requirements.txt                # Flask dependencies                     
+│   ├── templates/
+│   │   ├── base.html                  # HTML base template
+│   │   └── index.html                 # Main web interface
+│   └── static/
+│   │      └── style.css               # Styling
+│   └── tempaltes/
+│   │   └── base.html
+│   │   └── index.html
+│   │   
+└── spam_detector_amlbda/               # Flask web application running on AWS Lambda
+  ├── README.md                       # Deployment documentation
+  ├── app.py                          # Flask application entry point              
+  ├── requirements.txt                # Lambda and Flask dependencies
+  ├── Dockerfile                      # Docker configuration for Lambda
+  └── static/
+  │      └── style.css               # Styling
+  └── tempaltes/
+  │   └── base.html
+  │   └── index.html
+
 ```
 
 ---
