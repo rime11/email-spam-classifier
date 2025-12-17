@@ -259,7 +259,7 @@ performs better especially at minimizing legitimate emails misclassified as spam
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Clone Repository
 ```bash
