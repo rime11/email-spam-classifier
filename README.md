@@ -387,5 +387,5 @@ Feel free to:
 ---
 
 <div align="center">
-  <strong>⭐ If this project helped you, please consider starring the repository! ⭐</strong>
+  <strong> If this project helped you, please consider starring the repository! </strong>
 </div>
