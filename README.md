@@ -50,20 +50,52 @@ An end-to-end machine learning project that detects spam emails with **99.44% ac
 ## Project Workflow
 
 ### 1. **Data Analysis & Cleaning** 
-[Note book](notebooks/01_data_analysis.ipynb)
+[Go to Notebook](notebooks/01_data_analysis.ipynb). 
 
-This notebook performs comprehensive exploratory data analysis:
-- **Data Loading:** Import 33,716 emails with metadata
-- **Data Quality Assessment:** Identify missing values, duplicates, and data inconsistencies
-- **Feature Engineering:** 
-  - Extract temporal features (day of week from timestamps)
-  - Calculate email repetition frequency patterns
-- **Text Preprocessing:** Clean email text (lowercase conversion, whitespace normalization)
-- **Visualization:** Class distribution, temporal patterns, and text characteristics
-- **Output:** Cleaned dataset saved to `data/cleaned_data.csv`
+The model was trained on the Enron spam dataset, which required extensive text cleaning and preprocessing:
+
+**Dataset Characteristics:**
+    - **Total emails:** 33,716  
+    - **Spam:** 17,171 so 50.9%  
+    - **Ham (legitimate):** 16545 so 49.07%  
+    - **Balance:** Well-balanced dataset    
+
+**Data Loading:** Import 33,716 emails   
+**Cleaning Steps:**
+- Removed duplicates which means entries that had the same date, subject, message and label were considered duplicates and were removed.
+- Emails with missing message and subject or missing only message will be deleted because they offer no value
+- Emails with missing subject only it was replaced with 'no subject'   
+
+**Feature Engineering:** New features were created:   
+- day_of_week --> Monday =0 to Sunday = 6.  
+- repeat_freq --> how many times the email shows up in the data.   
+- combined_text --> combine subject and message.   
+
+**Text Preprocessing:** Converted combined_tect to lowercase and removed whitespace:   
+ - Kept punctuation and special characters becuase they are important for spam detection. Many spam emails have many special characters like '!'  
+- Applied TfidfVectorizer to combined_text
+
+**Output:** Cleaned dataset saved to `data/cleaned_data.csv`
+
+### Text Analysis
+
+After cleaning, we analyzed word patterns in spam vs legitimate emails:  
+### These are the most frequent words in spam messages after preprocessing
+![Spam Word Cloud](images/spam_wordcloud.png)
+
+### These are the most frequent words in ham/legitimate messages after preprocessing
+![Ham Word Cloud](images/ham_wordcloud.png)
+
+
+**Key Observations:**
+- Spam emails frequently contain words like "free", "win", "prize", "click"
+- Legitimate emails show more professional vocabulary and context-specific terms
+- TF-IDF vectorization effectively captures these distinctions
+
+For detailed analysis and visualizations, see `notebooks/data_exploration.ipynb`
 
 ### 2. **Model Training & Evaluation**  
-[Note Book](notebooks/02_model_selection.ipynb)  
+[Go to Notebook](notebooks/02_model_selection.ipynb)  
 This notebook handles model development and comparison:
 - **Feature Engineering:**
   - TF-IDF vectorization (67,000 features optimized via GridSearchCV)
@@ -152,13 +184,15 @@ spam-spam-classifier/
 ## Model Performance
 
 ### Cross-Validation Results (5-Fold)
+[Cross Validation scores](/data/scores_df_test.csv)
 
-| Model | Accuracy | F1 Score | Precision | Recall |
-|-------|----------|----------|-----------|--------|
-| MultinomialNB | 98.87% | 0.9883 | 0.9895 | 0.9871 |
-| Logistic Regression | 98.49% | 0.9845 | 0.9856 | 0.9950 |
-| SVC (Linear Kernel) | 99.10% | 0.9907 | 0.9862 | 0.9952 |
-| **LinearSVC**  | **99.09%** | **0.9907** | **0.9856** | **0.9957** |
+| Model | Accuracy | F1 Score | Precision | Recall | AUC Score|
+|-------|----------|----------|-----------|--------|--------|
+| MultinomialNB | 98.87% | 0.9883 | 0.9895 | 0.9871 |0.9887 |
+| Logistic Regression | 98.49% | 0.9845 | 0.9856 | 0.9852 | 0.985 |
+| SVC (Linear Kernel) | 99.10% | 0.9907 | 0.9862 | 0.9952 | 0.991 |
+| **LinearSVC**  | **99.09%** | **0.9907** | **0.9856** | **0.9911** | **0.991**|
+| test_set with LinearSCV | 99.42% | 0.9942 | 0.9912 | 0.9972 | 0.9998 |
 
 ### Final Test Set Evaluation
 
@@ -181,6 +215,10 @@ spam-spam-classifier/
   - Industry-proven for text classification tasks
   - Test performance (99.44%) exceeded cross-validation (99.09%), demonstrating strong generalization
 
+### This is the heat map of all the models' performance, the deeper the green the higher the score
+![Models Performance Heatmap](images/heatmap.png)
+- Heatmap shows LinearSVC (Lscv) dominates across metrics and it
+performs better especially at minimizing legitimate emails misclassified as spam 
 ---
 
 ## Deployment Journey

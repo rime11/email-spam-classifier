@@ -1,6 +1,6 @@
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, f1_score, recall_score, roc_auc_score
 
-def evaluate_predictions(y_true, y_pred, scores_df, y_pred_proba=None):
+def evaluate_predictions(scores_df, y_true, y_pred, pred_proba=[],pred_decision = []):
     '''
     Takes true labels and predictions, returns scores using your scorer metrics
     '''
@@ -12,14 +12,18 @@ def evaluate_predictions(y_true, y_pred, scores_df, y_pred_proba=None):
     scores['test_Recall_ham'] = recall_score(y_true, y_pred, pos_label=0)
     scores['test_Accuracy'] = accuracy_score(y_true, y_pred)
     scores = {k:round(v,4) for k,v in scores.items()}
-    print(scores)
-    # For AUC, you need probabilities
-    if y_pred_proba is not None:
-        scores['AUC'] = roc_auc_score(y_true, y_pred_proba[:, 1])  # probability of positive class
+    
+    if len(pred_proba) == 0 and len(pred_decision) > 0:
+        scores['test_AUC'] = roc_auc_score(y_true, pred_decision)
+    elif len(pred_decision) == 0 and len(pred_proba) >0:
+        scores['test_AUC'] = roc_auc_score(y_true, pred_proba[:, 1])
     else:
-        scores['AUC'] = None
+        print("To calculate AUC probabilities are needed")
 
+        
+    #print(scores)
+  
     #add all the scores to the scores df
     scores_df.loc['test_set']= scores
-    
+   
     return scores_df
