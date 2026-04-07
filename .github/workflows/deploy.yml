@@ -74,5 +74,5 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --image-uri ${{ secrets.ECR_REGISTRY }}/spam-detector:latest \
+            --image-uri ${{ secrets.ECR_REGISTRY }}/spam_detector:latest \
             --region ${{ secrets.AWS_REGION }}
