@@ -24,10 +24,12 @@ jobs:
           python-version: "3.10"
  
       - name: Install dependencies
+        working-directory: spam_app_lambda
         run: pip install -r requirements.txt
  
       - name: Run tests
-        run: pytest tests/ -v
+        working-directory: spam_app_lambda
+        run: PYTHONPATH=. pytest tests/test_app.py -v
         # -v means verbose - shows each test name and pass/fail in the logs
  
   # ---------------------------------------------------------------
@@ -59,6 +61,7 @@ jobs:
               --password-stdin ${{ secrets.ECR_REGISTRY }}
  
       - name: Build Docker image
+        working-directory: spam_app_lambda
         run: docker build -t spam-detector .
  
       - name: Tag and push image to ECR

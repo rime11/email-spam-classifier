@@ -61,11 +61,11 @@ def predict():
             return jsonify({'error':'message cannot be empty'})
         
         #process user input
-        precessed_input = process_user_input(subject, message)
+        processed_input = process_user_input(subject, message)
         
         #make prediction
-        result = (pipeline.predict(precessed_input))[0] #0 for spam
-        predict_score = (pipeline.decision_function(precessed_input))[0]
+        result = (pipeline.predict(processed_input))[0] #0 for spam
+        predict_score = (pipeline.decision_function(processed_input))[0]
         predict_proba = convert_score_to_prob(predict_score)
 
         prediction = "Spam" if result == 1 else "Not Spam"
@@ -94,11 +94,11 @@ def predict_api():
             return jsonify({'error':'message cannot be empty'})
         
         #process user input
-        precessed_input = process_user_input(subject, message)
+        processed_input = process_user_input(subject, message)
         
         #make prediction
-        result = (pipeline.predict(precessed_input))[0] #0 for spam
-        predict_score = (pipeline.decision_function(precessed_input))[0]
+        result = (pipeline.predict(processed_input))[0] #0 for spam
+        predict_score = (pipeline.decision_function(processed_input))[0]
         predict_proba = convert_score_to_prob(predict_score)
 
         prediction = "Spam" if result == 1 else "Not Spam"
