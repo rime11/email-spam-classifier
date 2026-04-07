@@ -1,0 +1,75 @@
+name: Test and Deploy to AWS Lambda
+ 
+on:
+  push:
+    branches: [main]       # runs automatically on every push to main
+  pull_request:
+    branches: [main]       # also runs when you open a pull request
+ 
+jobs:
+ 
+  # ---------------------------------------------------------------
+  # JOB 1: Run tests
+  # ---------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+ 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+ 
+      - name: Run tests
+        run: pytest tests/ -v
+        # -v means verbose - shows each test name and pass/fail in the logs
+ 
+  # ---------------------------------------------------------------
+  # JOB 2: Build Docker image and deploy to Lambda
+  # Only runs if tests pass 
+  # Only runs on pushes to main 
+  # ---------------------------------------------------------------
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'   # no deploy on pull requests
+ 
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+ 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+ 
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+            | docker login \
+              --username AWS \
+              --password-stdin ${{ secrets.ECR_REGISTRY }}
+ 
+      - name: Build Docker image
+        run: docker build -t spam-detector .
+ 
+      - name: Tag and push image to ECR
+        run: |
+          docker tag spam-detector:latest \
+            ${{ secrets.ECR_REGISTRY }}/spam-detector:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/spam-detector:latest
+ 
+      - name: Update Lambda to use new image
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --image-uri ${{ secrets.ECR_REGISTRY }}/spam-detector:latest \
+            --region ${{ secrets.AWS_REGION }}
