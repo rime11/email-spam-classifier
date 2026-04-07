@@ -14,11 +14,12 @@
 An end-to-end machine learning project that detects spam emails with **99.44% accuracy**, matching Gmail's industry-standard performance (~99.5%). The project demonstrates the complete ML lifecycle from data analysis to cloud deployment, with a focus on cost optimization and production best practices.
 
 **Key Highlights:**
--  Analyzed and cleaned 33,716 emails from the Enron dataset
+- Analyzed and cleaned 33,716 emails from the Enron dataset
 - Trained and compared 4 ML algorithms (LinearSVC achieved best results)
 - Built Flask web application with REST API
 - Deployed to AWS with cost optimization: **$54/month → $0-2/month**
 - Containerized with Docker for serverless Lambda deployment
+- This project uses GitHub Actions to automate testing and deployment on every push to main. [See the README file for detailed deployment instructions for lambda](/spam_app_lambda/README.md)
 
 ---
 

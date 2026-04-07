@@ -19,6 +19,18 @@ This application runs on AWS Lambda using **Docker containers** and **the Lambda
 ```
 User → API Gateway → Lambda → [Web Adapter] → Gunicorn:8080 → Flask → Response
 ```
+## CI/CD Pipeline
+
+This project uses GitHub Actions to automate testing and deployment on every push to main.
+
+**Workflow:**
+1. Runs pytest tests automatically
+2. If tests pass, builds a new Docker image
+3. Pushes image to AWS ECR
+4. Updates Lambda function with the new image
+
+The workflow file is located at `.github/workflows/deploy.yml`
+
 **Request Flow:**
 1. User sends a request to the API Gateway endpoint (e.g., `https://your-api-url.com/predict`)
 2. API Gateway triggers Lambda with an event
