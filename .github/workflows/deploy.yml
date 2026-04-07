@@ -67,8 +67,8 @@ jobs:
       - name: Tag and push image to ECR
         run: |
           docker tag spam-detector:latest \
-            ${{ secrets.ECR_REGISTRY }}/spam-detector:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/spam-detector:latest
+            ${{ secrets.ECR_REGISTRY }}/spam_detector:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/spam_detector:latest
  
       - name: Update Lambda to use new image
         run: |
